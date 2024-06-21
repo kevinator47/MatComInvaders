@@ -15,27 +15,14 @@
 
 
 
-      (^)         A
-   ( o o o )     a
-    -------   
-    /  |  \      a
+    (^)         A
+ ( o o o )     a
+  -------   
+  /  |  \      a
              
              
              
              
-                 
-      
-      
-Implementar algoritmos
-FCFS
-SJF
-STCF
-RR
-
-o
-
-RR
-MLFQ         
                
              
              

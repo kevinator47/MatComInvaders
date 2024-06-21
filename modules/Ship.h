@@ -9,11 +9,12 @@ typedef struct
     int y;
     int height;
     char* sprite[4];
-}Ship;
+} Ship;
 
 void MoveShip(Ship ship, Ship *p , int mov_x , int mov_y);
 void DrawShip(Ship ship , Ship *p);
 void DeleteShip(Ship ship , Ship *p);
+void Shoot(Ship *p);
 
 void ReactToInput(Ship ship, Ship *p)
 {
@@ -93,6 +94,17 @@ void DeleteShip(Ship ship, Ship *p)
         y++ ;
     }
 }
+void Shoot(Ship *p)
+{
+    struct NodoDisparo* nuevoDisparo = malloc(sizeof(struct NodoDisparo));
+    if (nuevoDisparo != NULL) {
+        nuevoDisparo->x = p->x;
+        nuevoDisparo->y = p->y;
+        nuevoDisparo->siguiente = listaDisparos;
+        listaDisparos = nuevoDisparo;
+    }
+}
+
 
 
 
