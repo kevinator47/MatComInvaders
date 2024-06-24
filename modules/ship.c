@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include "headers/ship.h"
 #include "headers/math.h"
+#include "headers/bullet.h"
 
 #define ESC 27
 void DrawShip(struct ship* ship) {
@@ -39,13 +40,22 @@ void MoveShip(struct ship* ship, int movX, int movY) {
 }
 
 //-------------------------------------------------------------------
-int ReactToInput(struct ship* ship) {
+void Shoot(struct ship* ship, struct bullet* bullets, int* numBullets) {
+    if(* numBullets < MAX_BULLETS) {
+        bullets[*numBullets].x = ship->x + 5;
+        bullets[*numBullets].y = ship->y - 1;
+        DrawBullet(&bullets[*numBullets]);
+        (*numBullets)++;
+    }
+}
+//--------------------------------------------
+int ReactToInput(struct ship* ship , struct bullet* bullets, int* numBullets) {
     char c = tolower(getch());
     int mov_x, mov_y;
     switch (c)
     {
     case ' ':
-        //Shoot()
+        Shoot(ship, bullets, numBullets);
         break;
 
     case 'w':

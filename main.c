@@ -2,18 +2,23 @@
 #include <ctype.h>
 #include "modules/headers/ship.h"
 #include "modules/ship.c"
+#include "modules/bullet.c"
 
 #define TRUE 1
+
 
 void InitializateSettings();
 
 int main() {
     InitializateSettings();
+    
+    // Inicializar disparos
+    int numBullets = 0;
+    struct bullet bullets[MAX_BULLETS];
 
     // Inicializar la nave del jugador
     int x = COLS / 2 -10;
     int y = LINES - 5;
-
     struct ship playerShip = {x,y, 4, {"   (^)   " , "( o o o )", " ------- ", " /  |  \\ "} };
 
     // Dibujar la nave del jugador
@@ -22,10 +27,13 @@ int main() {
 
     while (TRUE)
     {
-        if(ReactToInput(&playerShip))
+        if(ReactToInput(&playerShip , bullets, &numBullets))
         {
             break;
         }
+
+        UpdateBullets(bullets, numBullets);
+        usleep(MOVEMENT_DELAY);
     }
     
     // Cerrar ncurses y finalizar el juego

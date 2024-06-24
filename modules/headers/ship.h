@@ -11,5 +11,4 @@ struct ship {
 void DrawShip(struct ship* ship);
 void EraseShip(struct ship* ship);
 void MoveShip(struct ship* ship, int movX, int movY);
-
 #endif
