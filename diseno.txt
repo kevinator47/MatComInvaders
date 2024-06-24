@@ -1,41 +1,23 @@
 
 
 
-         \ /     \ ^ /     \ /
-        (x_x)    |x_x|    (x_x)
+         \ /       \ ^ /       \ /
+        (x_x)      |x_x|      (x_x)
 
 
 
 
-           |                |
+          |                     |
 
 
 
-                   |
+                     |
 
 
 
-      (^)         A
-   ( o o o )     a
-    -------   
-    /  |  \      a
-             
-             
-             
-             
-                 
-      
-      
-Implementar algoritmos
-FCFS
-SJF
-STCF
-RR
-
-o
-
-RR
-MLFQ         
-               
+                    (^)         
+                 ( o o o )     
+                  -------   
+                  /  |  \      
              
              
