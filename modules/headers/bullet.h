@@ -6,10 +6,11 @@
 struct bullet {
     int x;
     int y;
+    int active;
 };
 void DrawBullet(struct bullet* b);
 void EraseBullet(struct bullet* b);
 void MoveBullet(struct bullet* b);
-void UpdateBullets(struct bullet* bullets, int numBullets);
+void UpdateBullets(struct bullet* bullets);
 
 #endif

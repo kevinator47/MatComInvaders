@@ -1,11 +1,15 @@
 #ifndef SHIP_H
 #define SHIP_H
 
+#define SHIP_HEIGHT 4
+#define SHIP_WIDTH 10
+
 struct ship {
     int x;
     int y;
     int height;
-    char* sprite[4];
+    int width;
+    char* sprite[SHIP_HEIGHT];
 };
 
 void DrawShip(struct ship* ship);

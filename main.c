@@ -8,41 +8,35 @@
 
 
 void InitializateSettings();
+void InitializateBullets(struct bullet* bullets);
 
 int main() {
+
+    struct bullet bullets[MAX_BULLETS];  
     InitializateSettings();
-    
-    // Inicializar disparos
-    int numBullets = 0;
-    struct bullet bullets[MAX_BULLETS];
+    InitializateBullets(bullets);
 
-    // Inicializar la nave del jugador
-    int x = COLS / 2 -10;
-    int y = LINES - 5;
-    struct ship playerShip = {x,y, 4, {"   (^)   " , "( o o o )", " ------- ", " /  |  \\ "} };
-
-    // Dibujar la nave del jugador
+    // Inicializar y dibujar la nave del jugador
+    int x = COLS / 2 - SHIP_WIDTH;
+    int y = LINES - SHIP_HEIGHT - 1;
+    struct ship playerShip = {x, y, 4, 10, {"   (^)   " , "( o o o )", " ------- ", " /  |  \\ "} };
     DrawShip(&playerShip);
     refresh();
 
-    while (TRUE)
-    {
-        if(ReactToInput(&playerShip , bullets, &numBullets))
-        {
+    // Se inicializa el juego(aqui se crearian hilos)
+    while (TRUE) {
+        if(ReactToInput(&playerShip , bullets)) {
             break;
         }
-
-        UpdateBullets(bullets, numBullets);
+        UpdateBullets(bullets);
         usleep(MOVEMENT_DELAY);
     }
     
-    // Cerrar ncurses y finalizar el juego
-    endwin();
+    endwin();   // Cerrar ncurses y finalizar el juego
     return 0;
 }
 
-void InitializateSettings()
-{
+void InitializateSettings() {
     initscr(); // Inicia la ventana de la pantalla. 
     start_color(); // Inicia el modo de color.
     curs_set(0); // Oculta el cursor.
@@ -52,3 +46,8 @@ void InitializateSettings()
     box(stdscr, 0, 0); // Dibuja un recuadro alrededor de la ventana estándar.
 }
 
+void InitializateBullets(struct bullet* bullets) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        bullets[i].active = 0;
+    }
+}

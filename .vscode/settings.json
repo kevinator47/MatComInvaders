@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "bullet.h": "c",
+        "ship.h": "c"
+    }
+}
