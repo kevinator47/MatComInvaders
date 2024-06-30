@@ -1,7 +1,8 @@
 #include <ncurses.h>
 #include "headers/bullet.h"
-#define MOVEMENT_DELAY 100
+#include "headers/threadProps.h"
 
+#define TRUE 1
 void DrawBullet(struct bullet* b) {
     /*
     Pinta el disparo en pantalla printeando un asterisco en sus coordenadas
@@ -37,16 +38,24 @@ void MoveBullet(struct bullet* b) {
     }        
 }
 
-void UpdateBullets(struct bullet* bullets) {
+void* UpdateBullets(void* params) {
     /* 
      Se encarga de actualizar los movimientos de los disparos
        . Itera sobre la lista de disparos moviendo los que se encuentren activos 
     */
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        if(bullets[i].active) {
-            MoveBullet(&bullets[i]);
+    struct BulletThreadProps* p = (struct BulletThreadProps*) params;
+    struct bullet* bullets = p->bullets;
+    int endgame = p->endgame;
+
+    while(!endgame) {
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if(bullets[i].active) {
+                MoveBullet(&bullets[i]);
+         }
         }
     }
+    usleep(BULLET_MOVEMENT_DELAY);
+    return NULL;
 }
 
 

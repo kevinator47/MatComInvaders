@@ -1,8 +1,8 @@
 #include <ncurses.h>
 #include "headers/ship.h"
-#include "headers/math.h"
 #include "headers/bullet.h"
-
+#include "headers/math.h"
+#include "headers/threadProps.h"
 #define ESC 27
 
 // PROTOTYPES
@@ -85,41 +85,51 @@ void Shoot(struct ship* ship, struct bullet* bullets) {
     }
 }
 //-----------------------------------------------------------------------------
-int ReactToInput(struct ship* ship , struct bullet* bullets) {
+void* ReactToInput(void* params) {
     /*
     Recibe la entrada del usuario y hace que la nave reaccione a ella
     @params :
       ship : puntero hacia la nave
       bullets : puntero hacia la lista de disparos
-    @returns :
-      1 : si se ha pulsado la tecla ESC
-      0 : en otro caso
+      abort : flag para detener el juego
     @actions :
       ' ' : Dispara
       'w', 'a', 's', 'd' : Movimiento
       ESC : Termina el juego
     */
+    
+    // Desestructurando el parametro
+    struct InputThreadProps* p = (struct InputThreadProps*) params;
+    struct ship* ship = p->ship;
+    struct bullet* bullets = p->bullets;
+    int* endgame = p->endgame;
+
     int mov_x, mov_y;
-    char c = tolower(getch());
+    char c ;
     
-    switch (c) {
-        case ' ':
-            Shoot(ship, bullets);
-            break;
-        case 'w':
-        case 'a':
-        case 's':
-        case 'd':
-            GetMovement(c, &mov_x, &mov_y);
-            MoveShip(ship, mov_x, mov_y);
-            break;
-        case ESC:
-            return 1;
-        default:
-            break;
+    while (!endgame)
+    {
+        c = tolower(getch());
+        switch (c) {
+            case ' ':
+                Shoot(ship, bullets);
+                break;
+            case 'w':
+            case 'a':
+            case 's':
+            case 'd':
+                GetMovement(c, &mov_x, &mov_y);
+                MoveShip(ship, mov_x, mov_y);
+                break;
+            case ESC:
+                // region critica creo
+                *endgame = 1;
+                break;
+            default:
+                break;
+        }
     }
-    
-    return 0 ;
+    return NULL;
 }
 //-----------------------------------------------------------------------------
 void GenerateSpaceBlock(char* block, int width) {
