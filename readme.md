@@ -4,13 +4,13 @@ Integrantes:
 Jose Miguel Leyva
 Kevin Marquez
 
---------------------------------------------------------------------------------------------------------------------------
 El proyecto esta estructurado de la siguiente forma:
 
 main.c : contiene la funcion principal y los hilos que ejecutan los distintos eventos del juego
 modules/
 gameObjects.h : contiene las definiciones de todos los elementos del juego, sus comportamientos y estructuras de datos que los almacenan
 utils.h : funciones de proposito general
+
 ----------------------------------------------------------------------------------------------------------------------------
 El juego cuenta con 3 structs para representar los objetos del juego: ship, alien y bullet
 
@@ -57,6 +57,7 @@ MoveBullet : Simula el movimiento del disparo
 DestroyBullet: desactiva y borra de la interfaz el disparo
 UpdateBullets: se encarga de mover hacia arriba todos los disparos activos
 CheckCollision(alien): chequea si el disparo y alien chocan
+
 -----------------------------------------------------------------------------------------------------
 Durante el juego se iran generando filas de aliens que iran bajando hacia el jugador. Para tenerlas almacenadas se usa una estructura de datos de tipo Linked List denominada Horde
 
@@ -119,6 +120,7 @@ CheckColisions: se encarga de chequear si se producen colisiones entre aliens y 
 Para saber cuando termina el juego existe una variable global GameOver la cual se inicia en FALSE y forma la condicion de un bucle que mantiene el programa corriendo mientras GameOver no sea TRUE 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 TALLAS POR HACER
 .Pantalla de Inicio(opcional)
 .Pantalla de Final de Partida(opcional)
