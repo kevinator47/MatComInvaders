@@ -14,7 +14,7 @@ utils.h : funciones de proposito general
 ----------------------------------------------------------------------------------------------------------------------------
 El juego cuenta con 3 structs para representar los objetos del juego: ship, alien y bullet
 
-Ship
+Ship\n
 Propiedades
 x: Coordenada en el eje x de la nave
 y: Coordenada en el eje y de la nave
