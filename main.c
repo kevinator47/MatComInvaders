@@ -271,7 +271,7 @@ void* CheckCollisions(void* arg)
                 lastChecked = horde->first;
             }
 
-            if(AllDead(lastChecked))
+            if(AllDead(lastChecked->squad))
             {
                 Erase(horde,lastChecked);
             }
@@ -288,7 +288,7 @@ void* CheckLanding(void* arg)
     {
         pthread_mutex_lock(&alienDataMutex);
         AlienHorde* horde = (AlienHorde*) arg;
-        if(horde->last != NULL && Landed(horde->last))
+        if(horde->last != NULL && Landed(horde->last->squad))
         {
             gameOver = TRUE;
         }
@@ -327,9 +327,6 @@ void* CheckShipHit(void* arg)
         pthread_mutex_unlock(&alienDataMutex);
         pthread_mutex_unlock(&shipDataMutex);
         pthread_mutex_unlock(&screenMutex);
-        return NULL;
-        
+        return NULL;   
     }
-    
-
 }

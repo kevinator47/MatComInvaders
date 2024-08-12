@@ -320,17 +320,17 @@ AlienSquad* CreateAlienSquad(int num_aliens)
 
     return squad;
 }
-int AllDead(SquadNode* squad)
+int AllDead(AlienSquad* squad)
 {
-    for(int i = 0; i < squad->squad->num_aliens; i++)
+    for(int i = 0; i < squad->num_aliens; i++)
     {
-        if(squad->squad->aliens[i].life > 0)
+        if(squad->aliens[i].life > 0)
             return FALSE;
     }
     return TRUE;
 }
-int Landed(SquadNode* squad)
+int Landed(AlienSquad* squad)
 {
-    return (squad->squad->aliens[0].y == (LINES - ALIEN_HEIGHT - 1));
+    return (squad->aliens[0].y == (LINES - ALIEN_HEIGHT - 1)) && !(AllDead(squad));
 }
 // ------------------------------------------------------------------------------------
