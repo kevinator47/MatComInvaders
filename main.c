@@ -8,16 +8,12 @@
 #define BULLET_SPEED 30000
 #define ALIEN_SPEED  500000
 
-typedef struct {
-    AlienHorde* horde;
-    struct ship* playerShip;
-} CheckHitParams;
-
-// Prototypes
-
-struct ship Start();
+// -------------------------  PROTOTYPES  --------------------------------
+int StartGame();
+void ConfigureGame(AlienHorde** horde, struct ship* playerShip, CheckHitParams* params);
 void BuildUI();
 struct ship BuildShip();
+void CreateThreads(AlienHorde* horde, struct ship* playerShip, CheckHitParams* params);
 
 void* moveBullets(void* arg);
 void* ReactToInput(void* arg);
@@ -29,59 +25,76 @@ void* CheckShipHit(void* arg);
 
 void  MoveHorde(AlienHorde* horde);
 AlienSquad* CreateAlienSquad(int num_aliens);
-
-// Globals
+ 
+// -------------------------  GLOBALS  --------------------------------
 int gameOver = FALSE;
 
-// Mutexes
+// -------------------------  MUTEXES  --------------------------------
 pthread_mutex_t screenMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t shipDataMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t bulletDataMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t alienDataMutex = PTHREAD_MUTEX_INITIALIZER;
 
+// --------------------------------------------------------------------
+
 int main() 
 {
-    struct ship playerShip = Start();
-    AlienHorde* horde = NewAlienHorde();
-    DrawShip(&playerShip);
-
-    CheckHitParams params;
-    params.horde = horde;
-    params.playerShip = &playerShip;
+    // (Aqui iria la pantalla de inicio del juego)
     
-    // Crea los hilos
-    pthread_t inputThread,bulletsThread, alienGeneratorThread, moveAliensThread, checkCollisionsThread;
-    pthread_t shipCollisionThread, alienLandingThread;
+    StartGame();
     
-    pthread_create(&inputThread, NULL, ReactToInput, &playerShip);
-    pthread_create(&bulletsThread, NULL, moveBullets, NULL);
-    pthread_create(&alienGeneratorThread, NULL, GenerateNewAlienSquad, horde);
-    pthread_create(&moveAliensThread, NULL, MoveAliens, horde);
-    pthread_create(&checkCollisionsThread, NULL, CheckCollisions, horde);
-    pthread_create(&alienLandingThread, NULL, CheckLanding, horde);
-    pthread_create(&shipCollisionThread, NULL, CheckShipHit, &params);
-
-    while (!gameOver)
+    // (Aqui iria lo de mostrar el GameOver)
+    
+    printf("GAME OVER : Has eliminado %d aliens.\n", score);
+    
+    return 0 ;
+    
+}
+int StartGame()
+{
+    struct ship* playerShip = malloc(sizeof(struct ship));
+    CheckHitParams* params = malloc(sizeof(CheckHitParams));
+    AlienHorde* horde = NULL;
+    
+    ConfigureGame(&horde, playerShip, params);
+    
+    while (TRUE)
     {
-        continue;
+        if(gameOver)
+        {
+            endwin();
+            break;
+        }
     }
-    endwin();
-    if (horde->last==NULL)
-    {
-        printf("Null\n");
-    }
-    printf("Has eliminado %d aliens.\n", score);
+    
+    free(playerShip);
+    free(params);
     
     return 0;
+
 }
 //---------------------------------------------------------------------
-struct ship Start() {
+void ConfigureGame(AlienHorde** horde, struct ship* playerShip, CheckHitParams* params) {
+    
+    // Crea la interfaz del juego
     BuildUI();
-    return BuildShip();
+
+    // Crea una AlienHorde vacia
+    *horde = NewAlienHorde();
+
+    // Crea la nave del jugador
+    *playerShip = BuildShip();
+
+    // CheckHitParams sera necesaria para pasar info a un hilo
+    params->horde = *horde;
+    params->playerShip = playerShip;
+
+    // Crea los hilos que manejan los eventos del juego
+    CreateThreads(*horde, playerShip, params);
 }
 
-void BuildUI() {
-    // Crea la ventana del juego e inicializa los ajustes 
+void BuildUI() {                                // Crea la ventana del juego e inicializa los ajustes
+
     initscr();                                  // Inicia la ventana de la pantalla. 
     start_color();                              // Inicia el modo de color.
     init_pair(1, COLOR_RED, COLOR_BLACK);       // Definir el identificador del color rojo
@@ -96,19 +109,35 @@ void BuildUI() {
     refresh();                                  // Refresca la pantalla.
 }
 
-struct ship BuildShip() 
-{
-    // Crea la nave del jugador
-    int x = COLS / 2 - SHIP_WIDTH;
-    int y = LINES - SHIP_HEIGHT - 1;
+struct ship BuildShip() {                       // Crea la nave del jugador
+    int x = COLS / 2 - SHIP_WIDTH;              // Coordenada en el eje x (justo en el centro)
+    int y = LINES - SHIP_HEIGHT - 1;            // Coordenada en el eje y (en la parte inferior)    
     struct ship theShip = {x, y, 4, 10, {
         "   (^)   ", 
         "( o o o )", 
         " ------- ", 
         " /  |  \\ "
     }};
-
+    DrawShip(&theShip);                         // Dibuja la nave en la interfaz
     return theShip;
+}
+
+void CreateThreads(AlienHorde* horde, struct ship* playerShip, CheckHitParams* params)
+{
+    /* Crea los hilos que manejan los eventos del juego 
+    Reaccionar a teclas, mover disparos, generar aliens, mover aliens, 
+    chequear colisiones y aterrizajes */
+
+    pthread_t inputThread,bulletsThread, alienGeneratorThread, moveAliensThread, checkCollisionsThread;
+    pthread_t shipCollisionThread, alienLandingThread;
+    
+    pthread_create(&inputThread, NULL, ReactToInput, playerShip);
+    pthread_create(&bulletsThread, NULL, moveBullets, NULL);
+    pthread_create(&alienGeneratorThread, NULL, GenerateNewAlienSquad, horde);
+    pthread_create(&moveAliensThread, NULL, MoveAliens, horde);
+    pthread_create(&checkCollisionsThread, NULL, CheckCollisions, horde);
+    pthread_create(&alienLandingThread, NULL, CheckLanding, horde);
+    pthread_create(&shipCollisionThread, NULL, CheckShipHit, params);
 }
 
 void* ReactToInput(void* arg)
