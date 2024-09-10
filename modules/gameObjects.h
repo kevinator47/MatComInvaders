@@ -21,11 +21,13 @@ struct ship {
     int width;
     char* sprite[SHIP_HEIGHT];
 };
+
 struct bullet {
     int x;
     int y;
     int active;
 };
+
 struct alien {
     int x;
     int y;
@@ -34,6 +36,31 @@ struct alien {
     char* sprite[ALIEN_HEIGHT];
     int life;
 };
+
+typedef struct {
+    struct alien* aliens;   // array de aliens
+    int height;             // altura de la línea en la pantalla
+    int num_aliens;         // tamaño del array de aliens
+} AlienSquad;
+
+typedef struct SquadNode {
+    AlienSquad* squad;
+    struct SquadNode* prev;
+    struct SquadNode* next;
+} SquadNode;
+
+typedef struct {
+    SquadNode* first;       // referencia al primer squad de la horda
+    SquadNode* last;        // referencia al último squad de la horda
+    int length;             // cantidad de elementos
+} AlienHorde;
+
+typedef struct {
+    AlienHorde* horde;
+    struct ship* playerShip;
+} CheckHitParams;
+
+
 // --------------------  PROTOTYPES  ----------------------------------
 void DrawShip(struct ship* ship);
 void EraseShip(struct ship* ship);
@@ -50,15 +77,18 @@ void CreateAlien(struct alien* alien, int num_aliens, int i, int y);
 int GetRandomCoo(int i, int num_aliens) ;
 
 void Shoot(struct ship* ship);
-int CenterPosition(struct ship* ship);
+int CenteredPosition(struct ship* ship);
 void UpdateBullets();
 
-int FirstFit();
+int NextFit();
+
 // --------------------  GLOBALS  ----------------------------------
 
 int firstAvailablePosition = 0;
+int nextFitPosition = 0 ;
 struct bullet bullets[MAX_BULLETS];
 int score = 0 ;
+
 // --------------------  SHIP  ----------------------------------
 void MoveShip(struct ship* ship, int movX, int movY) 
 {
@@ -92,24 +122,37 @@ void DrawShip(struct ship* ship)
 }
 void Shoot(struct ship* ship) 
 {
-    int bulletIndex = FirstFit();
+    int bulletIndex = NextFit();
     if (bulletIndex != -1) {
         bullets[bulletIndex].active = 1;
-        bullets[bulletIndex].x = CenterPosition(ship);
+        bullets[bulletIndex].x = CenteredPosition(ship);
         bullets[bulletIndex].y = ship->y - 1;
         DrawBullet(&bullets[bulletIndex]);
     }
 }
-int FirstFit() 
+int NextFit() 
 {
-    for (int i = 0; i < MAX_BULLETS; i++) 
+    // Estrategia NextFit para encontrar un espacio donde almacenar un nuevo disparo
+    for (int i = nextFitPosition; i < MAX_BULLETS; i++) 
     {
         if (!bullets[i].active) 
+        {
+            nextFitPosition = i + 1;
             return i;
+        }   
+    }
+
+    for(int i = 0; i < nextFitPosition; i++)
+    {
+        if(!bullets[i].active)
+        {
+            nextFitPosition = i + 1;
+            return i;
+        }
     }
     return -1;
 }
-int CenterPosition(struct ship* ship) 
+int CenteredPosition(struct ship* ship) 
 {
     return ship->x + (ship->width / 2) - 1 ;
 }
@@ -238,27 +281,6 @@ int GetRandomCoo(int i, int num_aliens) {
 }
 
 // --------------------  HORDE  ----------------------------------
-
-// Structs
-typedef struct {
-    struct alien* aliens;   // array de aliens
-    int height;             // altura de la línea en la pantalla
-    int num_aliens;         // tamaño del array de aliens
-} AlienSquad;
-
-typedef struct SquadNode {
-    AlienSquad* squad;
-    struct SquadNode* prev;
-    struct SquadNode* next;
-} SquadNode;
-
-typedef struct {
-    SquadNode* first;       // referencia al primer squad de la horda
-    SquadNode* last;        // referencia al último squad de la horda
-    int length;             // cantidad de elementos
-} AlienHorde;
-
-// Methods
 AlienHorde* NewAlienHorde() 
 {
     AlienHorde* horde = (AlienHorde*) malloc(sizeof(AlienHorde));
@@ -271,7 +293,7 @@ void Insert(AlienHorde* horda, AlienSquad* squad)
     SquadNode* nuevo_nodo = (SquadNode*) malloc(sizeof(SquadNode));
     nuevo_nodo->squad = squad;
     
-    if (horda->last == NULL) {          // Si horda esta vacia
+    if (horda->last == NULL) {               // Si horda esta vacia
         horda->first = nuevo_nodo;       
         horda->last = nuevo_nodo;
         nuevo_nodo->prev = NULL;
